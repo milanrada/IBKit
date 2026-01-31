@@ -98,6 +98,11 @@ extension IBDecoder {
 	
 	func unwrap(_ type: Double.Type) throws -> Double {
 		let stringValue = try readString()
+		// Handle empty strings - IBKR sometimes sends empty strings when value is not available
+		// Return -2 which is the standard "not available" sentinel for option Greeks
+		if stringValue.isEmpty {
+			return -2
+		}
 		guard let value = Double(stringValue) else {
 			throw IBClientError.decodingError("cant unwrap double from \(stringValue), cursor: \(cursor)  \(buffer)")
 		}
