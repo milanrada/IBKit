@@ -350,7 +350,41 @@ public struct IBAccountUpdate: IBResponse, IBEvent {
 			
 			///To check projected margin requirements under Portfolio Margin model
 		case WhatIfPMEnabled					= "WhatIfPMEnabled"
-		
+
+		// MARK: - Additional keys from newer IB Gateway versions
+
+		/// Column priority in securities segment
+		case ColumnPrioS						= "ColumnPrio-S"
+
+		/// Guarantee value
+		case Guarantee							= "Guarantee"
+
+		/// Irish tax liability
+		case IETaxLiability						= "IETaxLiability"
+
+		/// Incentive coupons value
+		case IncentiveCoupons					= "IncentiveCoupons"
+
+		/// Net liquidation value and margin in review
+		case NLVAndMarginInReview				= "NLVAndMarginInReview"
+
+		/// Uncertainty in net liquidation value calculation
+		case NetLiquidationUncertainty			= "NetLiquidationUncertainty"
+
+		/// Value of physical certificates
+		case PhysicalCertificateValue			= "PhysicalCertificateValue"
+
+		/// Segment title in securities segment
+		case SegmentTitleS						= "SegmentTitle-S"
+
+		/// Settled cash organized by date
+		case SettledCashByDate					= "SettledCashByDate"
+
+		/// Settled cash organized by date in securities segment
+		case SettledCashByDateS					= "SettledCashByDate-S"
+
+		/// Total pending charges on debit card
+		case TotalDebitCardPendingCharges		= "TotalDebitCardPendingCharges"
 
 	}
 	

@@ -280,8 +280,30 @@ extension IBClient: IBConnectionDelegate {
 				print("Unknown response \(responseType) received: \(String(data:data, encoding: .utf8))")
 			}
 			
+		} catch let error as DecodingError {
+			// Provide detailed decoding error info
+			switch error {
+			case .typeMismatch(let type, let context):
+				print("🔴 IBKit Decode Error - Type mismatch: expected \(type), path: \(context.codingPath.map(\.stringValue).joined(separator: "."))")
+			case .valueNotFound(let type, let context):
+				print("🔴 IBKit Decode Error - Value not found: \(type), path: \(context.codingPath.map(\.stringValue).joined(separator: "."))")
+			case .keyNotFound(let key, let context):
+				print("🔴 IBKit Decode Error - Key not found: \(key.stringValue), path: \(context.codingPath.map(\.stringValue).joined(separator: "."))")
+			case .dataCorrupted(let context):
+				print("🔴 IBKit Decode Error - Data corrupted: \(context.debugDescription)")
+			@unknown default:
+				print("🔴 IBKit Decode Error - Unknown: \(error)")
+			}
+			if debugMode {
+				print("  Raw data: \(String(data: data, encoding: .utf8) ?? "nil")")
+			}
+		} catch let error as IBClientError {
+			print("🔴 IBKit Client Error: \(error)")
+			if debugMode {
+				print("  Raw data: \(String(data: data, encoding: .utf8) ?? "nil")")
+			}
 		} catch {
-			print(error.localizedDescription)
+			print("🔴 IBKit Unknown Error: \(error)")
 		}
 		
 	}
