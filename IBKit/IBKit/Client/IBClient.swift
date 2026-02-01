@@ -25,15 +25,17 @@
 
 
 import Foundation
-import Combine
 import NIOCore
 import NIOConcurrencyHelpers
 import NIOPosix
 
 open class IBClient: IBAnyClient, IBRequestWrapper {
-    
-    internal var subject = PassthroughSubject<IBEvent,Never>()
-    lazy public var eventFeed = subject.share().eraseToAnyPublisher()
+
+    /// Continuation for yielding events to the async stream
+    internal var eventContinuation: AsyncStream<IBEvent>.Continuation?
+
+    /// Async stream of events from the IB Gateway
+    public let eventFeed: AsyncStream<IBEvent>
     
     var identifier: Int
     
@@ -75,10 +77,19 @@ open class IBClient: IBAnyClient, IBRequestWrapper {
         guard let host = URL(string: address)?.host else {
             fatalError("Cant figure out the host to connect")
         }
-        
+
+        // Create the AsyncStream with unbounded buffering to avoid dropped events
+        var continuation: AsyncStream<IBEvent>.Continuation?
+        self.eventFeed = AsyncStream<IBEvent>(bufferingPolicy: .unbounded) { cont in
+            continuation = cont
+        }
+
         self.host = host
         self.port = port
         self.identifier = masterID
+
+        // Store the continuation after super.init (for classes)
+        self.eventContinuation = continuation
     }
 
 	var _nextValidID: Int = 0
@@ -113,7 +124,7 @@ open class IBClient: IBAnyClient, IBRequestWrapper {
 		guard let connection else { return }
 		connection.disconnect()
 		self.connection = nil
-		subject.send(completion: .finished)
+		eventContinuation?.finish()
 	}
 	
 	public func send(request: IBRequest) throws {
